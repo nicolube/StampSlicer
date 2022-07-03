@@ -1,4 +1,8 @@
-build:
+all: clean build test
+
+build: rebuild
+
+rebuild:
 	mkdir -p build
 	(cd build && cmake .. && cmake  --build .)
 

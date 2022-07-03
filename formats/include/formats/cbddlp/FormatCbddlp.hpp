@@ -1,5 +1,7 @@
+#ifndef INCLUDE_FORMATS_FORMATCBDDLP_HPP
+#define INCLUDE_FORMATS_FORMATCBDDLP_HPP
+
 #include <stddef.h>
-#include <stdint.h>
 
 namespace formats::cbddlp {
     
@@ -93,3 +95,5 @@ namespace formats::cbddlp {
         };
 
 }
+
+#endif

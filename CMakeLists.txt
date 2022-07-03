@@ -6,3 +6,5 @@ project(StampSlicer)
 
 add_subdirectory("formats")
 add_subdirectory("external/gtest")
+add_subdirectory("external/bitmap")
+add_subdirectory("external/lunasvg")
