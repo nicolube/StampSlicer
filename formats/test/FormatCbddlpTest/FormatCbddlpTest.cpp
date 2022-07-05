@@ -1,4 +1,5 @@
 #include <formats/cbddlp/FormatCbddlp.hpp>
+#include <formats/Image.hpp>
 #include <iostream>
 #include <fstream>
 #include <gtest/gtest.h>
@@ -76,6 +77,37 @@ TEST_F(FormatCbddlpTest, Content)
     //      << "previewTwoOffsetAddress: " << header.previewTwoOffsetAddress << endl;
     // ASSERT_TRUE(false);
 }
+
+
+TEST(Image, EncodeDecode) {
+
+    formats::Image image1{200, 200};
+
+    for (size_t i = 0; i < 200; i++)
+    {
+        image1.setPixel(i, i, 255);
+        image1.setPixel(199 - i, i, 255);
+    }
+    image1.fill(0, 0, 2, 2, 255);
+
+    size_t encodeLength;
+    unsigned char *imageBuffer = FormatCbddlp::encode(&image1, &encodeLength);
+
+    formats::Image image2{200, 200};
+    FormatCbddlp::decode(imageBuffer, encodeLength, &image2);
+
+    for (size_t i = 0; i < 200 * 200; i++)
+    {
+        ASSERT_EQ(image1.getBitmap()[i], image2.getBitmap()[i]) 
+        << "x: " << i % 200
+        << " y: " << i / 200;
+    }
+
+    delete[] imageBuffer;
+    
+}
+
+
 
 int main(int argc, char **argv)
 {

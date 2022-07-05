@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-project("FormatCbddlpTest")
+project("LayoutGeneratorTest")
 
-add_executable("${PROJECT_NAME}" "FormatCbddlpTest.cpp")
+add_executable("${PROJECT_NAME}" "LayoutGeneratorTest.cpp")
 
 target_link_libraries("${PROJECT_NAME}" 
-    StampSlicer_formats
+    StampSlicer_core
     gtest_main
     )
 

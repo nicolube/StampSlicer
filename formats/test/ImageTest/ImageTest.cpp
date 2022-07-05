@@ -70,6 +70,21 @@ TEST(Image, Copy)
     {
         ASSERT_EQ(image1.getBitmap()[i], image2.getBitmap()[i]) << "Image copy failed";
     }
+
+    image2 = image1;
+    for (size_t i = 0; i < 720 * 512; i++)
+    {
+        ASSERT_EQ(image1.getBitmap()[i], image2.getBitmap()[i]) << "Image copy failed: x: " 
+        << i % image1.getWidth()
+        << ", y: " << i / image1.getHeight();;
+    }
+    image2 = image2;
+    for (size_t i = 0; i < 720 * 512; i++)
+    {
+        ASSERT_EQ(image1.getBitmap()[i], image2.getBitmap()[i]) << "Image copy failed: x: " 
+        << i % image1.getWidth()
+        << ", y: " << i / image1.getHeight();;
+    }
 }
 
 TEST(Image, CopyImage)
@@ -132,6 +147,8 @@ TEST(Image, WriteToBitmap)
 
     bitmap_image bmpImage = image.toBitmapImage();
 }
+
+
 
 int main(int argc, char **argv)
 {

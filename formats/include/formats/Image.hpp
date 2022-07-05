@@ -12,26 +12,37 @@ namespace formats
     {
     public:
         explicit Image(const Image &image);
-        explicit Image(size_t width, size_t height);
-        
+        explicit Image(int width, int height);
+        explicit Image(int width, int height, unsigned char color);
+
         ~Image();
 
         unsigned char *getBitmap();
-        void copy(size_t x, size_t y, Image *input);
-        void fill(size_t x, size_t y, size_t width, size_t height, char value);
-        void setPixel(size_t x, size_t y, unsigned char value);
-        unsigned char getPixel(size_t x, size_t y);
+        void copy(int x, int y, Image *input);
+        void fill(int x, int y, int width, int height, char value);
+        void setPixel(int x, int y, unsigned char value);
+        unsigned char getPixel(int x, int y);
         void padding(long size);
         bitmap_image toBitmapImage();
-        size_t getWidth();
-        size_t getHeight();
+        int getWidth();
+        int getHeight();
+        Image &operator=(const Image &src)
+        {
+            if (this == &src)
+                return *this;
+            width = src.width;
+            height = src.height;
+            data = new unsigned char[height * width];
+            memcpy(data, src.data, width * height);
+            return *this;
+        }
 
     private:
         unsigned char *data;
-        const size_t width;
-        const size_t height;
-        void pad(unsigned char * src, unsigned char * dest, size_t length);
-        void depad(unsigned char * src, unsigned char * dest, size_t length);
+        int width;
+        int height;
+        void pad(unsigned char *src, unsigned char *dest, int length);
+        void depad(unsigned char *src, unsigned char *dest, int length);
     };
 
 };

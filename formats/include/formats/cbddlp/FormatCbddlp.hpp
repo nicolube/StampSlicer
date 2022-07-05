@@ -2,6 +2,7 @@
 #define INCLUDE_FORMATS_FORMATCBDDLP_HPP
 
 #include <stddef.h>
+#include <formats/Image.hpp>
 
 namespace formats::cbddlp {
     
@@ -89,9 +90,12 @@ namespace formats::cbddlp {
 
             public:
             void load(char *data, size_t length);
+			static unsigned char *encode(Image *src, size_t *length);
+			static void decode(unsigned char *src, size_t length, Image *dest);
 
             //private:
             cbddlp_file_head_t header;
+
         };
 
 }
