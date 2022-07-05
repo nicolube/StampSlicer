@@ -10,13 +10,13 @@ Image::Image(const Image &src) : height(src.height), width(src.width)
 Image::Image(int width, int height) : height(height), width(width)
 {
     data = new unsigned char[height * width];
-    fill(0,0, width, height, 0);
+    fill(0, 0, width, height, 0);
 }
 
 Image::Image(int width, int height, unsigned char color) : height(height), width(width)
 {
     data = new unsigned char[height * width];
-    fill(0,0, width, height, color);
+    fill(0, 0, width, height, color);
 }
 
 Image::~Image()
@@ -31,23 +31,18 @@ unsigned char *Image::getBitmap()
 
 void Image::copy(int x, int y, Image *input)
 {
-    for (int cWidth = 0; cWidth < input->getWidth(); cWidth++)
+    int length = input->getHeight();
+    for (int cHeight = 0; cHeight < input->getWidth(); cHeight++)
     {
-        for (int cHeight = 0; cHeight < input->getHeight(); cHeight++)
-        {
-            data[(y + cHeight) * width + (x + cWidth)] = input->getPixel(cWidth, cHeight);
-        }
+        memcpy(data + (y + cHeight) * width + x, input->data + cHeight * input->getWidth(), length);
     }
 }
 
 void Image::fill(int x, int y, int _width, int _height, char value)
 {
-    for (int cWidth = 0; cWidth < _width; cWidth++)
+    for (int cHeight = 0; cHeight < _height; cHeight++)
     {
-        for (int cHeight = 0; cHeight < _height; cHeight++)
-        {
-            data[(y + cHeight) * width + (x + cWidth)] = value;
-        }
+        memset(data + (y + cHeight) * width + x, value, _width);
     }
 }
 
@@ -94,9 +89,12 @@ void Image::padding(long size)
 
     for (int i = 0; i < abs(size); i++)
     {
-        if (size > 0) {
+        if (size > 0)
+        {
             pad(src, dest, length);
-        } else {
+        }
+        else
+        {
             depad(src, dest, length);
         }
 

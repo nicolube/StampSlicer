@@ -38,7 +38,6 @@ TEST(Image, Fill)
 
     Image image1{720, 512};
     image1.fill(10, 10, 30, 30, 123);
-
     for (size_t x = 0; x < 720; x++)
     {
         for (size_t y = 0; y < 512; y++)
