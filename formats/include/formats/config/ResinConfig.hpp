@@ -15,7 +15,9 @@ namespace formats::config
         float resinMass;
         float resinCost;
         float bottomLightOffTime;
+        float bottomLightOnTime;
         float lightOffTime;
+        float lightOnTime;
         float bottomLayerCount;
         float layerHeight;
 
@@ -29,7 +31,9 @@ namespace formats::config
             float resinMass,
             float resinCost,
             float bottomLightOffTime,
+            float bottomLightOmTime,
             float lightOffTime,
+            float lightOnTime,
             float bottomLayerCount,
             float layerHeight);
         float getBottomLiftDistance();
@@ -40,7 +44,9 @@ namespace formats::config
         float getResinMass();
         float getResinCost();
         float getBottomLightOffTime();
+        float getBottomLightOnTime();
         float getLightOffTime();
+        float getLightOnTime();
         float getBottomLayerCount();
         float getLayerHeight();
     };

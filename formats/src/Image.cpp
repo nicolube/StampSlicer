@@ -3,19 +3,19 @@ using namespace formats;
 
 Image::Image(const Image &src) : height(src.height), width(src.width)
 {
-    data = new unsigned char[height * width];
+    data = new u_char[height * width];
     memcpy(data, src.data, width * height);
 }
 
 Image::Image(int width, int height) : height(height), width(width)
 {
-    data = new unsigned char[height * width];
+    data = new u_char[height * width];
     fill(0, 0, width, height, 0);
 }
 
-Image::Image(int width, int height, unsigned char color) : height(height), width(width)
+Image::Image(int width, int height, u_char color) : height(height), width(width)
 {
-    data = new unsigned char[height * width];
+    data = new u_char[height * width];
     fill(0, 0, width, height, color);
 }
 
@@ -24,9 +24,26 @@ Image::~Image()
     delete[] data;
 }
 
-unsigned char *Image::getBitmap()
+u_char *Image::getBitmap()
 {
     return data;
+}
+
+void Image::scale(int newWidth, int newHeigth)
+{
+    u_char *newData = new u_char[newWidth * newHeigth];
+    float convX = width / newWidth;
+    float convY = height / newHeigth;
+    for (size_t x = 0; x < newWidth; x++)
+    {
+        for (size_t y = 0; y < newHeigth; y++)
+        {
+            newData[(y + newWidth) * width + x] = getPixel(x * convX, y * convY);
+        }
+    }
+
+    delete[] data;
+    data = newData;
 }
 
 void Image::copy(int x, int y, Image *input)
@@ -46,12 +63,12 @@ void Image::fill(int x, int y, int _width, int _height, char value)
     }
 }
 
-void Image::setPixel(int x, int y, unsigned char value)
+void Image::setPixel(int x, int y, u_char value)
 {
     data[y * width + x] = value;
 }
 
-unsigned char Image::getPixel(int x, int y)
+u_char Image::getPixel(int x, int y)
 {
     return data[y * width + x];
 }
@@ -63,7 +80,7 @@ bitmap_image Image::toBitmapImage()
     {
         for (int y = 0; y < height; y++)
         {
-            unsigned char color = getPixel(x, y);
+            u_char color = getPixel(x, y);
             bmpImage.set_pixel(x, y, color, color, color);
         }
     }
@@ -83,8 +100,8 @@ int Image::getHeight()
 void Image::padding(long size)
 {
     const int length = width * height;
-    unsigned char *src = data;
-    unsigned char *dest = new unsigned char[length];
+    u_char *src = data;
+    u_char *dest = new u_char[length];
     memcpy(dest, src, length);
 
     for (int i = 0; i < abs(size); i++)
@@ -107,7 +124,7 @@ void Image::padding(long size)
     delete[] dest;
 }
 
-void Image::pad(unsigned char *src, unsigned char *dest, int length)
+void Image::pad(u_char *src, u_char *dest, int length)
 {
     for (int pos = 0; pos < length; pos++)
     {
@@ -122,7 +139,7 @@ void Image::pad(unsigned char *src, unsigned char *dest, int length)
         }
     }
 }
-void Image::depad(unsigned char *src, unsigned char *dest, int length)
+void Image::depad(u_char *src, u_char *dest, int length)
 {
     for (int pos = 0; pos < length; pos++)
     {

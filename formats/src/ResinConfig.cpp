@@ -11,7 +11,9 @@ ResinConfig::ResinConfig(
     float resinMass,
     float resinCost,
     float bottomLightOffTime,
+    float bottomLightOnTime,
     float lightOffTime,
+    float lightOnTime,
     float bottomLayerCount,
     float layerHeight)
     : bottomLiftDistance(bottomLiftDistance),
@@ -22,7 +24,9 @@ ResinConfig::ResinConfig(
       resinMass(resinMass),
       resinCost(resinCost),
       bottomLightOffTime(bottomLightOffTime),
+      bottomLightOnTime(bottomLightOnTime),
       lightOffTime(lightOffTime),
+      lightOnTime(lightOnTime),
       bottomLayerCount(bottomLayerCount),
       layerHeight(layerHeight)
 {
@@ -68,9 +72,19 @@ float ResinConfig::getBottomLightOffTime()
     return bottomLightOffTime;
 }
 
+float ResinConfig::getBottomLightOnTime()
+{
+    return bottomLightOnTime;
+}
+
 float ResinConfig::getLightOffTime()
 {
     return lightOffTime;
+}
+
+float ResinConfig::getLightOnTime()
+{
+    return lightOnTime;
 }
 
 float ResinConfig::getBottomLayerCount()

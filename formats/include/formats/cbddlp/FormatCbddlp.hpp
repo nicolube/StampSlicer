@@ -3,100 +3,110 @@
 
 #include <stddef.h>
 #include <formats/Image.hpp>
+#include <formats/config/PrinterConfig.hpp>
+#include <formats/config/ResinConfig.hpp>
 
-namespace formats::cbddlp {
-    
-    struct cbddlp_file_head_t
-		{
-			int magic;
-			int version;
-			float bed_x_mm;
-			float bed_y_mm;
-			float bed_z_mm;
-			int : 32;
-			int : 32;
-			int : 32;
-			float layer_height_mm;
-			float exposure_s;
-			float bot_exposure_s;
-			float light_off_time_s;
-			int bot_layer_count;
-			int resolution_x;
-			int resolution_y;
-			int large_preview_offset;
-			int layer_table_offset;
-			int layer_table_count;
-			int small_preview_offset;
-			int print_time_s;
-			int projection;
-			int ext_config_offset;
-			int ext_config_size;
-			int level_set_count;
-			short pwm_level;
-			short bot_pwm_level;
-			int encryption_key;
-			int ext_config2_offset;
-			int ext_config2_size;
-		};
+namespace formats::cbddlp
+{
 
-		struct ext_config_t
-		{
-			float bot_lift_dist_mm;
-			float bot_lift_speed_mmpm;
-			float lift_dist_mm;
-			float lift_speed_mmpm;
-			float retract_speed_mmpm;
-			float resin_volume_ml;
-			float resin_mass_g;
-			float resin_cost;
-			float bot_light_off_time_s;
-			float light_off_time_s;
-			int bot_layer_count;
-			float padding1;
-			float padding2;
-			float padding3;
-			float padding4;
-		};
+	struct cbddlp_file_head_t
+	{
+		int magic= 0x12fd0019;
+		int version = 2;
+		float bed_x_mm;
+		float bed_y_mm;
+		float bed_z_mm;
+		int zeros[2]{0, 0};
+		float overall_height_mm;
+		float layer_height_mm;
+		float exposure_s;
+		float bot_exposure_s;
+		float light_off_time_s;
+		int bot_layer_count;
+		int resolution_x;
+		int resolution_y;
+		int large_preview_offset;
+		int layer_table_offset;
+		int layer_table_count;
+		int small_preview_offset;
+		int print_time_s;
+		int projection = 0;
+		int ext_config_offset;
+		int ext_config_size;
+		int level_set_count = 1;
+		short pwm_level = 0xFF;
+		short bot_pwm_level = 0xFF;
+		int encryption_key = 0;
+		int ext_config2_offset;
+		int ext_config2_size;
+	};
 
-		struct layer_definition_t
-		{
-			float layerPositionZ;
-			float layerExposure;
-			float layerOffTimeSeconds;
-			int dataAddress;
-			int dataSize;
-			int unknown1;
-			int unknown2;
-			int unknown3;
-			int unknown4;
-		};
+	struct ext_config_t
+	{
+		float bot_lift_dist_mm;
+		float bot_lift_speed_mmpm;
+		float lift_dist_mm;
+		float lift_speed_mmpm;
+		float retract_speed_mmpm;
+		float resin_volume_ml;
+		float resin_mass_g;
+		float resin_cost;
+		float bot_light_off_time_s;
+		float light_off_time_s;
+		int bot_layer_count;
+		float padding1;
+		float padding2;
+		float padding3;
+		float padding4;
+	};
 
-        struct image_header_t {
-            int size_x;
-            int size_y;
-            int data_offset;
-            int data_len;
-        };
+	struct ext2_config_t
+	{
+		int zeros[7]{0, 0, 0, 0, 0, 0, 0};
+		u_int machine_type_offset = 0;
+		int machine_type_len = 0;
+		float encryption_mode = 0;
+		float mysterious_id = 0;
+		float antialias_level = 0;
+		int software_version = 0x01060300;
+		int unknown = 0x200;
+		float padding1;
+		float padding2;
+		float padding3;
+	};
 
-        struct layer_header_t {
-            int z_mm;
-            int exposure_s;
-            int light_off_time_s;
-            int data_offset;
-            int data_len;
-        };
+	struct image_header_t
+	{
+		u_int size_x;
+		u_int size_y;
+		u_int data_offset;
+		u_int data_len;
+		u_int zeros[4]{0, 0, 0, 0};
+	};
 
-        class FormatCbddlp {
+	struct layer_header_t
+	{
+		float z_mm;
+		float exposure_s;
+		float light_off_time_s;
+		u_int data_offset;
+		u_int data_len;
+		u_int zeros[7]{0, 0, 0, 0, 0, 0, 0};
+	};
 
-            public:
-            void load(char *data, size_t length);
-			static unsigned char *encode(Image *src, size_t *length);
-			static void decode(unsigned char *src, size_t length, Image *dest);
+	class FormatCbddlp
+	{
 
-            //private:
-            cbddlp_file_head_t header;
+	public:
+		void load(char *data, size_t length);
+		static u_char *encodePreview(Image *src, u_int &length);
+		static u_char *encode(Image *src, u_int &length);
+		static void decode(u_char *src, u_int length, Image *dest);
+		u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers);
 
-        };
+		// private:
+		cbddlp_file_head_t header;
+	};
 
 }
 

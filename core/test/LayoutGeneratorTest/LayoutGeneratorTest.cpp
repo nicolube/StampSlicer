@@ -21,7 +21,7 @@ TEST(LayoutGeneratorTest, Constructor)
     part.fill(0, 0, 10, 10, 255);
 
     config::PrinterConfig printerConfig{1440, 2560, 68.04, 120.96, 150};
-    config::ResinConfig resinConfig{150, 100, 10, 150, 150, 1.0, 1.0, 0, 0, 5, 0.05};
+    config::ResinConfig resinConfig{150, 100, 10, 150, 150, 1.0, 1.0, 0, 0, 0, 0, 5, 0.05};
 
     LayerGanerator generator(printerConfig, resinConfig, 2);
 

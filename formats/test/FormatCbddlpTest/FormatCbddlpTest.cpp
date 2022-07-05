@@ -90,8 +90,8 @@ TEST(Image, EncodeDecode) {
     }
     image1.fill(0, 0, 2, 2, 255);
 
-    size_t encodeLength;
-    unsigned char *imageBuffer = FormatCbddlp::encode(&image1, &encodeLength);
+    u_int encodeLength;
+    unsigned char *imageBuffer = FormatCbddlp::encode(&image1, encodeLength);
 
     formats::Image image2{200, 200};
     FormatCbddlp::decode(imageBuffer, encodeLength, &image2);
