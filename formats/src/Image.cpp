@@ -10,13 +10,13 @@ Image::Image(const Image &src) : height(src.height), width(src.width)
 Image::Image(int width, int height) : height(height), width(width)
 {
     data = new u_char[height * width];
-    fill(0, 0, width, height, 0);
+    memset(data, 0, height * width);
 }
 
 Image::Image(int width, int height, u_char color) : height(height), width(width)
 {
     data = new u_char[height * width];
-    fill(0, 0, width, height, color);
+    memset(data, color, height * width);
 }
 
 Image::~Image()
@@ -31,17 +31,19 @@ u_char *Image::getBitmap()
 
 void Image::scale(int newWidth, int newHeigth)
 {
-    u_char *newData = new u_char[newWidth * newHeigth];
+    const size_t size = newWidth * newHeigth;
+    u_char *newData = new u_char[size];
     float convX = width / newWidth;
     float convY = height / newHeigth;
     for (size_t x = 0; x < newWidth; x++)
     {
         for (size_t y = 0; y < newHeigth; y++)
         {
-            newData[(y + newWidth) * width + x] = getPixel(x * convX, y * convY);
+            newData[y * newWidth + x] = getPixel(x * convX, y * convY);
         }
     }
-
+    width = newWidth;
+    height = newHeigth;
     delete[] data;
     data = newData;
 }

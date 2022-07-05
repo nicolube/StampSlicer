@@ -5,7 +5,7 @@
 using namespace formats::cbddlp;
 using namespace formats::config;
 
-void FormatCbddlp::load(char *data, size_t length)
+void FormatCbddlp::load(u_char *data, size_t length)
 {
     std::memcpy(&header, data, sizeof(cbddlp_file_head_t));
 }
@@ -33,7 +33,8 @@ u_char *FormatCbddlp::encodePreview(Image *src, u_int &length)
 
 u_char *FormatCbddlp::encode(Image *src, u_int &length)
 {
-    return rleEncode<u_char>(src, length, 0x7F, generateLayer);;
+    return rleEncode<u_char>(src, length, 0x7F, generateLayer);
+    ;
 }
 
 void FormatCbddlp::decode(u_char *src, u_int length, Image *dest)
@@ -50,7 +51,7 @@ void FormatCbddlp::decode(u_char *src, u_int length, Image *dest)
     }
 }
 
-u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinConfig, Image *imageData, const int layers)
+u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size)
 {
     cbddlp_file_head_t header;
     header.bed_x_mm = printerConfig.getBedWidth();
@@ -78,23 +79,30 @@ u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinCo
     ext2_config_t ext2;
 
     u_int smallImageSize;
-    Image smallImage(imageData[layers-1]);
+    Image smallImage{imageData[layers - 1]};
     smallImage.scale(200, 125);
-    u_char *smallImage = encodePreview(&smallImage, smallImageSize);
+    u_char *smallImageData = encodePreview(&smallImage, smallImageSize);
     image_header_t smallImageHeader;
-    Image largeImage(imageData[layers-1]);
-    smallImage.scale(200, 125);
+
+    Image largeImage{imageData[layers - 1]};
+    largeImage.scale(200, 125);
     u_int largeImageSize;
-    u_char *largeImage = encodePreview(&largeImage, largeImageSize);
+    u_char *largeImageData = encodePreview(&largeImage, largeImageSize);
     image_header_t largeImageHeader;
 
     u_char *encodedImages[layers];
-    u_int encodedSizeTotal;
+    u_int encodedSizeTotal = 0;
     layer_header_t layerHeaderTable[layers];
     for (int layer = 0; layer < layers; layer++)
     {
-        encodedImages[layer] = encode(&(imageData[layer]), layerHeaderTable->data_len);
-        encodedSizeTotal += layerHeaderTable->data_len;
+        encodedImages[layer] = encode(&(imageData[layer]), layerHeaderTable[layer].data_len);
+        encodedSizeTotal += layerHeaderTable[layer].data_len;
+        layerHeaderTable[layer].z_mm = layer * resinConfig.getLayerHeight();
+        layerHeaderTable[layer].light_off_time_s = resinConfig.getLightOffTime();
+        if (layer < resinConfig.getBottomLayerCount())
+            layerHeaderTable[layer].exposure_s = resinConfig.getBottomLightOnTime();
+        else
+            layerHeaderTable[layer].exposure_s = resinConfig.getLightOnTime();
     }
 
     size_t ext1_pos = sizeof(cbddlp_file_head_t);
@@ -112,34 +120,35 @@ u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinCo
     header.ext_config2_size = sizeof(ext2_config_t);
     header.small_preview_offset = small_image_header_pos;
     header.large_preview_offset = large_image_header_pos;
+    header.layer_table_offset = layer_header_table_pos;
+    header.layer_table_count = layers;
 
-    size_t size = sizeof(cbddlp_file_head_t) +
-                  sizeof(ext_config_t) +
-                  sizeof(ext2_config_t) +
-                  sizeof(image_header_t) +
-                  sizeof(image_header_t) +
-                  sizeof(layer_header_t) * layers +
-                  smallImageSize +
-                  largeImageSize +
-                  encodedSizeTotal;
+    *size = sizeof(cbddlp_file_head_t) +
+            sizeof(ext_config_t) +
+            sizeof(ext2_config_t) +
+            sizeof(image_header_t) +
+            sizeof(image_header_t) +
+            sizeof(layer_header_t) * layers +
+            smallImageSize +
+            largeImageSize +
+            encodedSizeTotal;
 
-    // package
-    u_char *buf = new u_char[size];
+    // // package
+    u_char *buf = new u_char[*size];
     memcpy(buf, &header, sizeof(cbddlp_file_head_t));
     memcpy(buf + ext1_pos, &ext1, sizeof(ext_config_t));
     memcpy(buf + ext2_pos, &ext2, sizeof(ext2_config_t));
     memcpy(buf + small_image_header_pos, &smallImageHeader, sizeof(image_header_t));
     memcpy(buf + large_image_header_pos, &largeImageHeader, sizeof(image_header_t));
-    memcpy(buf + layer_header_table_pos, &layerHeaderTable, sizeof(layer_header_t) * layers);
-    memcpy(buf + small_image_pos, &smallImage, smallImageSize);
-    memcpy(buf + small_image_pos, &largeImage, smallImageSize);
+    memcpy(buf + small_image_pos, &smallImageData, smallImageSize);
+    memcpy(buf + small_image_pos, &largeImageData, smallImageSize);
     for (int layer = 0; layer < layers; layer++)
     {
-        memcpy(buf + image_table_pos, encodedImages[layer], encodedSizeTotal);
-        layerHeaderTable[layers].data_offset = image_table_pos;
-        image_table_pos += layerHeaderTable[layers].data_len;
+        memcpy(buf + image_table_pos, encodedImages[layer], layerHeaderTable[layer].data_len);
+        layerHeaderTable[layer].data_offset = image_table_pos;
+        image_table_pos += layerHeaderTable[layer].data_len;
         delete encodedImages[layer];
     }
-
+    memcpy(buf + layer_header_table_pos, &layerHeaderTable, sizeof(layer_header_t) * layers);
     return buf;
 }

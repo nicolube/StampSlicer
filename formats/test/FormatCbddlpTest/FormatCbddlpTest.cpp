@@ -1,4 +1,6 @@
 #include <formats/cbddlp/FormatCbddlp.hpp>
+#include <formats/config/PrinterConfig.hpp>
+#include <formats/config/ResinConfig.hpp>
 #include <formats/Image.hpp>
 #include <iostream>
 #include <fstream>
@@ -8,14 +10,17 @@ using std::cout;
 using std::endl;
 using std::ifstream;
 using std::ios;
+using std::ofstream;
 using std::streampos;
 
 using namespace formats::cbddlp;
+using namespace formats::config;
+using formats::Image;
 
 class FormatCbddlpTest : public ::testing::Test
 {
 public:
-    char *fileData;
+    u_char *fileData;
     size_t size;
 
 protected:
@@ -32,8 +37,8 @@ protected:
         file.seekg(0, ios::beg);
         streampos start = file.tellg();
         size = end - start;
-        fileData = new char[size];
-        file.read(fileData, size);
+        fileData = new u_char[size];
+        file.read((char *)fileData, size);
         file.close();
     }
 
@@ -71,17 +76,20 @@ TEST_F(FormatCbddlpTest, Content)
 
     ASSERT_EQ(header.layer_table_count, 1177);
 
-    // cout
-    //      << "previewOneOffsetAddress: " << header.previewOneOffsetAddress << endl
-    //      << "layersDefinitionOffsetAddress: " << header.layersDefinitionOffsetAddress << endl
-    //      << "previewTwoOffsetAddress: " << header.previewTwoOffsetAddress << endl;
-    // ASSERT_TRUE(false);
+    int layer = 1;
+    layer_header_t layderHeaders[header.layer_table_count];
+    memcpy(layderHeaders, fileData + header.layer_table_offset, header.layer_table_count * sizeof(layer_header_t));
+    u_char *imgData = &(fileData[layderHeaders[layer].data_offset]);
+
+    Image image{header.resolution_x, header.resolution_y};
+    FormatCbddlp::decode(imgData, layderHeaders[layer].data_len, &image);
+    // image.toBitmapImage().save_image("loadedImage.bmp");
 }
 
+TEST_F(FormatCbddlpTest, EncodeDecode)
+{
 
-TEST(Image, EncodeDecode) {
-
-    formats::Image image1{200, 200};
+    formats::Image image1{200, 300};
 
     for (size_t i = 0; i < 200; i++)
     {
@@ -93,21 +101,49 @@ TEST(Image, EncodeDecode) {
     u_int encodeLength;
     unsigned char *imageBuffer = FormatCbddlp::encode(&image1, encodeLength);
 
-    formats::Image image2{200, 200};
+    formats::Image image2{200, 300};
     FormatCbddlp::decode(imageBuffer, encodeLength, &image2);
 
     for (size_t i = 0; i < 200 * 200; i++)
     {
-        ASSERT_EQ(image1.getBitmap()[i], image2.getBitmap()[i]) 
-        << "x: " << i % 200
-        << " y: " << i / 200;
+        ASSERT_EQ(image1.getBitmap()[i], image2.getBitmap()[i])
+            << "x: " << i % 200
+            << " y: " << i / 200;
     }
 
     delete[] imageBuffer;
-    
 }
 
+TEST_F(FormatCbddlpTest, PackegeTest)
+{
 
+    PrinterConfig printerConfig{1440, 2560, 68.04, 120.96, 150};
+    ResinConfig resinConfig{150, 100, 10, 150, 150, 1.0, 1.0, 0.5, 90, 0.5, 16, 5, 0.05};
+
+    Image *parts = (Image *)malloc(sizeof(Image) * 20);
+    for (size_t i = 0; i < 20; i++)
+    {
+        parts[i] = Image{printerConfig.getResolutionX(), printerConfig.getResolutionY()};
+        parts[i].fill(0, 0, parts[i].getWidth(), 30, 255);
+        parts[i].fill(0, parts[i].getHeight() - 30, parts[i].getWidth(), 30, 255);
+        parts[i].fill(0, 0, 30, parts[i].getHeight(), 255);
+        parts[i].fill(parts[i].getWidth() - 30, 0, 30, parts[i].getHeight(), 255);
+        parts[i].fill(0, 0, 100, 100, 255);
+    }
+
+    FormatCbddlp formatCbddlp{};
+
+    size_t size;
+    u_char *data = formatCbddlp.package(printerConfig, resinConfig, parts, 20, &size);
+
+    // std::ofstream outFile("test.cbddlp");
+    // outFile.write((char *)data, size);
+    // outFile.flush();
+    // outFile.close();
+
+    delete[] data;
+    free(parts);
+}
 
 int main(int argc, char **argv)
 {

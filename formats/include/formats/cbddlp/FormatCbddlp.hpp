@@ -91,18 +91,18 @@ namespace formats::cbddlp
 		float light_off_time_s;
 		u_int data_offset;
 		u_int data_len;
-		u_int zeros[7]{0, 0, 0, 0, 0, 0, 0};
+		u_int zeros[4]{0, 0, 0, 0};
 	};
 
 	class FormatCbddlp
 	{
 
 	public:
-		void load(char *data, size_t length);
+		void load(u_char *data, size_t length);
 		static u_char *encodePreview(Image *src, u_int &length);
 		static u_char *encode(Image *src, u_int &length);
 		static void decode(u_char *src, u_int length, Image *dest);
-		u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers);
+		u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t * size);
 
 		// private:
 		cbddlp_file_head_t header;
