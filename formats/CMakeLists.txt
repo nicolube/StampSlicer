@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 
 project("StampSlicer_formats")
-add_library(${PROJECT_NAME} STATIC
-    "src/PrinterConfig.cpp"
-    "src/ResinConfig.cpp"
+add_library(${PROJECT_NAME}
     "src/FormatCbddlp.cpp"
     "src/Image.cpp"
+    "src/Packager.cpp"
+    "src/PrinterConfig.cpp"
+    "src/ResinConfig.cpp"
 )
 
 target_link_libraries("${PROJECT_NAME}" 

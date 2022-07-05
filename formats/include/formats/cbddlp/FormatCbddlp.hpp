@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <formats/Image.hpp>
+#include <formats/Packager.hpp>
 #include <formats/config/PrinterConfig.hpp>
 #include <formats/config/ResinConfig.hpp>
 
@@ -94,7 +95,7 @@ namespace formats::cbddlp
 		u_int zeros[4]{0, 0, 0, 0};
 	};
 
-	class FormatCbddlp
+	class FormatCbddlp : public formats::Packager
 	{
 
 	public:
@@ -102,7 +103,7 @@ namespace formats::cbddlp
 		static u_char *encodePreview(Image *src, u_int &length);
 		static u_char *encode(Image *src, u_int &length);
 		static void decode(u_char *src, u_int length, Image *dest);
-		u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t * size);
+		u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t * size) override final;
 
 		// private:
 		cbddlp_file_head_t header;
