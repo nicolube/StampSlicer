@@ -6,15 +6,15 @@ using namespace formats::config;
 using formats::Image;
 
 LayerGanerator::LayerGanerator(PrinterConfig &printerConfig, ResinConfig &resinConfig, float stempHight)
-    : printerConfig(printerConfig), 
-    resinConfig(resinConfig), 
-    stempHight(stempHight), 
-    px_mm(printerConfig.getResolutionX() / printerConfig.getBedWidth()),
-    channelWidth(3 * px_mm),
-    padding(4 * px_mm),
-    centerLayer(2 / resinConfig.getLayerHeight()),
-    channelHeight(3 / resinConfig.getLayerHeight()),
-    baseHeight(4 / resinConfig.getLayerHeight())
+    : printerConfig(printerConfig),
+      resinConfig(resinConfig),
+      stempHight(stempHight),
+      px_mm(printerConfig.getResolutionX() / printerConfig.getBedWidth()),
+      channelWidth(3 * px_mm),
+      padding(4 * px_mm),
+      centerLayer(2 / resinConfig.getLayerHeight()),
+      channelHeight(3 / resinConfig.getLayerHeight()),
+      baseHeight(4 / resinConfig.getLayerHeight())
 {
     layerCount = (4 + stempHight) / resinConfig.getLayerHeight();
     int padding = 15;
@@ -23,10 +23,6 @@ LayerGanerator::LayerGanerator(PrinterConfig &printerConfig, ResinConfig &resinC
     {
         imageData[i] = Image(printerConfig.getResolutionX(), printerConfig.getResolutionY());
     }
-
-
-    
-
 }
 
 LayerGanerator::~LayerGanerator()
@@ -36,19 +32,14 @@ LayerGanerator::~LayerGanerator()
 
 void LayerGanerator::add(int x, int y, Image &image)
 {
-    generateBottemLayers(x, y, image.getWidth(), image.getHeight());
-    for (int i = 0; i < 90; i++)
-    {
-        std::stringstream ss;
-        ss << "layer-" << i << ".bmp";
-        imageData[i].toBitmapImage().save_image(ss.str());
-    }
+    generateBaseLayers(x, y, image.getWidth(), image.getHeight());
+    generateImageLayers(x, y, image);
 }
 
 void stripeImage(Image &image, int width, int padding)
 {
-    int numX = image.getWidth() / padding-1;
-    int numY = image.getHeight() / padding-1;
+    int numX = image.getWidth() / padding - 1;
+    int numY = image.getHeight() / padding - 1;
     int startX = (image.getWidth() - (numX * padding)) / 2;
     int startY = (image.getHeight() - (numY * padding)) / 2;
 
@@ -64,7 +55,7 @@ void stripeImage(Image &image, int width, int padding)
     }
 }
 
-void LayerGanerator::generateBottemLayers(int x, int y, int width, int height)
+void LayerGanerator::generateBaseLayers(int x, int y, int width, int height)
 {
     Image stripedImage(width, height, 255);
     stripeImage(stripedImage, channelWidth, padding);
@@ -76,7 +67,7 @@ void LayerGanerator::generateBottemLayers(int x, int y, int width, int height)
         // int stripeWidth = channelWidth - ((float)channelWidth * layer / (channelHeight / 2-1)); // Regtangle 45 deg
         int stripeWidth = channelWidth * cos(asin((float)layer / (channelHeight / 2))); // circle
         stripedImage.fill(0, 0, width, height, 255);
-        stripeImage(stripedImage, stripeWidth , padding);
+        stripeImage(stripedImage, stripeWidth, padding);
         imageData[centerLayer + layer].copy(x, y, &stripedImage);
         imageData[centerLayer - layer].copy(x, y, &stripedImage);
     }
@@ -84,7 +75,7 @@ void LayerGanerator::generateBottemLayers(int x, int y, int width, int height)
     for (int layer = 0; layer < baseHeight; layer++)
     {
         int channelStart = centerLayer - channelHeight / 2;
-        
+
         if (layer > channelStart && layer < channelStart + channelHeight)
             continue;
 
@@ -92,6 +83,17 @@ void LayerGanerator::generateBottemLayers(int x, int y, int width, int height)
     }
 }
 
-void LayerGanerator::generateLayers(int x, int y, Image &image)
+void LayerGanerator::generateImageLayers(int x, int y, Image &src)
 {
+    const float deg_15 = 15 * M_PI / 188;
+
+    for (int layerOffset = 0; layerOffset < layerCount - baseHeight; layerOffset++)
+    {
+        int layer = layerCount - layerOffset - 1;
+        int padding = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mm);
+        Image image(src);
+        if (padding != 0)
+            image.padding(padding);
+        imageData[layer].copy(x, y, &image);   
+    }
 }

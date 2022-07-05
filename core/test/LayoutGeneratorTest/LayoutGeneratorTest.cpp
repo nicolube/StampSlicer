@@ -15,7 +15,7 @@ TEST(LayoutGeneratorTest, Constructor)
     Image part{500, 500};
 
     part.fill(0, 0, part.getWidth(), 2, 255);
-    part.fill(0, part.getHeight() - 2, 2, part.getHeight(), 255);
+    part.fill(0, part.getHeight() - 2, part.getWidth(), 2, 255);
     part.fill(0, 0, 2, part.getHeight(), 255);
     part.fill(part.getWidth() - 2, 0, 2, part.getHeight(), 255);
     part.fill(0, 0, 10, 10, 255);
