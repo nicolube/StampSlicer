@@ -1,4 +1,5 @@
 #include <formats/Image.hpp>
+
 using namespace formats;
 
 Image::Image(const Image &src) : height(src.height), width(src.width)

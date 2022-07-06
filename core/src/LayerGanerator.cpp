@@ -4,6 +4,7 @@
 using namespace core;
 using namespace formats::config;
 using formats::Image;
+using formats::Image;
 
 LayerGanerator::LayerGanerator(PrinterConfig &printerConfig, ResinConfig &resinConfig, float stempHight)
     : printerConfig(printerConfig),
@@ -96,4 +97,21 @@ void LayerGanerator::generateImageLayers(int x, int y, Image &src)
             image.padding(padding);
         imageData[layer].copy(x, y, &image);   
     }
+}
+
+
+const u_char *LayerGanerator::package(formats::Packager &packager, size_t &size) {
+    return packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
+}
+
+void LayerGanerator::save(formats::Packager &packager, const char *name) {
+    size_t size;
+    const u_char *data =  packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
+    std::stringstream ss;
+    ss << name << packager.getFileExtension();
+    std::ofstream outFile(ss.str());
+    outFile.write((char *)data, size);
+    outFile.flush();
+    outFile.close();
+
 }

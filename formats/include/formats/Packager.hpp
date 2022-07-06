@@ -12,9 +12,13 @@ namespace formats
     public:
         Packager() = default;
         virtual ~Packager() = default;
-        virtual u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t * size) = 0;
+        virtual const u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size) = 0;
+        const std::string getFileExtension();
+
+    protected:
+        std::string fileExtension;
     };
-    
+
 }
 
 #endif
