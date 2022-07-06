@@ -5,7 +5,8 @@
 using namespace formats::cbddlp;
 using namespace formats::config;
 
-FormatCbddlp::FormatCbddlp() {
+FormatCbddlp::FormatCbddlp()
+{
     fileExtension = ".cbddlp";
 }
 
@@ -79,6 +80,9 @@ const u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &r
     ext1.lift_dist_mm = resinConfig.getLiftDistance();
     ext1.lift_speed_mmpm = resinConfig.getLiftSpeed();
     ext1.retract_speed_mmpm = resinConfig.getRetractSpeed();
+    ext1.bot_light_off_time_s = resinConfig.getBottomLightOffTime();
+    ext1.light_off_time_s = resinConfig.getLightOffTime();
+    ext1.bot_layer_count = resinConfig.getBottomLayerCount();
 
     ext2_config_t ext2;
 
