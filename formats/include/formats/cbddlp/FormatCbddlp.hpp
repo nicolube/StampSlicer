@@ -12,7 +12,7 @@ namespace formats::cbddlp
 
 	struct cbddlp_file_head_t
 	{
-		int magic= 0x12fd0019;
+		int magic = 0x12fd0019;
 		int version = 2;
 		float bed_x_mm;
 		float bed_y_mm;
@@ -99,11 +99,12 @@ namespace formats::cbddlp
 	{
 
 	public:
+		FormatCbddlp();
 		void load(u_char *data, size_t length);
 		static u_char *encodePreview(Image *src, u_int &length);
 		static u_char *encode(Image *src, u_int &length);
 		static void decode(u_char *src, u_int length, Image *dest);
-		u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t * size) override final;
+		const u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size) override final;
 
 		// private:
 		cbddlp_file_head_t header;

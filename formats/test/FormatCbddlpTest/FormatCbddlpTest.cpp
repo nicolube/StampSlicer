@@ -134,7 +134,7 @@ TEST_F(FormatCbddlpTest, PackegeTest)
     FormatCbddlp formatCbddlp{};
 
     size_t size;
-    u_char *data = formatCbddlp.package(printerConfig, resinConfig, parts, 20, &size);
+    const u_char *data = formatCbddlp.package(printerConfig, resinConfig, parts, 20, &size);
 
     // std::ofstream outFile("test.cbddlp");
     // outFile.write((char *)data, size);

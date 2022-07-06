@@ -5,6 +5,10 @@
 using namespace formats::cbddlp;
 using namespace formats::config;
 
+FormatCbddlp::FormatCbddlp() {
+    fileExtension = ".cbddlp";
+}
+
 void FormatCbddlp::load(u_char *data, size_t length)
 {
     std::memcpy(&header, data, sizeof(cbddlp_file_head_t));
@@ -51,7 +55,7 @@ void FormatCbddlp::decode(u_char *src, u_int length, Image *dest)
     }
 }
 
-u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size)
+const u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size)
 {
     cbddlp_file_head_t header;
     header.bed_x_mm = printerConfig.getBedWidth();
@@ -85,7 +89,7 @@ u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinCo
     image_header_t smallImageHeader;
 
     Image largeImage{imageData[layers - 1]};
-    largeImage.scale(200, 125);
+    largeImage.scale(400, 300);
     u_int largeImageSize;
     u_char *largeImageData = encodePreview(&largeImage, largeImageSize);
     image_header_t largeImageHeader;

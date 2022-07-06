@@ -5,7 +5,7 @@ add_library(${PROJECT_NAME} STATIC
     "src/LayerGanerator.cpp"
 )
 
-target_link_libraries("${PROJECT_NAME}" 
+target_link_libraries("${PROJECT_NAME}"
     StampSlicer_formats)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "include")

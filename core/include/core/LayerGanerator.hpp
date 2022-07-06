@@ -1,6 +1,10 @@
+#ifndef CORE_LAYERGENERATOR_HPP
+#define CORE_LAYERGENERATOR_HPP
+
 #include <formats/Image.hpp>
 #include <formats/config/ResinConfig.hpp>
 #include <formats/config/PrinterConfig.hpp>
+#include <formats/Packager.hpp>
 
 namespace core
 {
@@ -27,5 +31,9 @@ namespace core
         LayerGanerator(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, float stempHight);
         ~LayerGanerator();
         void add(int x, int y, formats::Image &image);
+        const u_char *package(formats::Packager &packager, size_t &size);
+        void save(formats::Packager &packager, const char *name);
     };
 }
+
+#endif
