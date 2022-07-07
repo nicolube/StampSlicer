@@ -49,9 +49,9 @@ namespace formats::cbddlp
 		float lift_dist_mm;
 		float lift_speed_mmpm;
 		float retract_speed_mmpm;
-		float resin_volume_ml;
-		float resin_mass_g;
-		float resin_cost;
+		float resin_volume_ml = 100;
+		float resin_mass_g = 100;
+		float resin_cost = 1;
 		float bot_light_off_time_s;
 		float light_off_time_s;
 		int bot_layer_count;
@@ -68,7 +68,7 @@ namespace formats::cbddlp
 		int machine_type_len = 0;
 		float encryption_mode = 0;
 		float mysterious_id = 0;
-		float antialias_level = 0;
+		float antialias_level = 1;
 		int software_version = 0x01060300;
 		int unknown = 0x200;
 		float padding1;

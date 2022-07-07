@@ -11,7 +11,7 @@ namespace formats
     class Image
     {
     public:
-        explicit Image(const Image &image);
+        Image(const Image &image);
         explicit Image(int width, int height);
         explicit Image(int width, int height, u_char color);
 
