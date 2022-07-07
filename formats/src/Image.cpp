@@ -100,7 +100,7 @@ int Image::getHeight()
     return height;
 }
 
-void Image::padding(long size)
+void Image::padding(int size)
 {
     const int length = width * height;
     u_char *src = data;

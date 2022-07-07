@@ -23,7 +23,7 @@ namespace formats
         void fill(int x, int y, int width, int height, char value);
         void setPixel(int x, int y, u_char value);
         u_char getPixel(int x, int y);
-        void padding(long size);
+        void padding(int size);
         bitmap_image toBitmapImage();
         int getWidth();
         int getHeight();

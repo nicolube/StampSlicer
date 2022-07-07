@@ -27,7 +27,7 @@ TEST(LayoutGeneratorTest, Add)
 
     LayerGanerator generator(printerConfig, resinConfig, 2);
 
-    generator.add(30, 20, part);
+    generator.add(2, 2, part);
 }
 
 TEST(LayoutGeneratorTest, Package)
@@ -47,7 +47,7 @@ TEST(LayoutGeneratorTest, Package)
 
     LayerGanerator generator(printerConfig, resinConfig, 2);
 
-    generator.add(30, 20, part);
+    generator.add(2, 2, part);
 
     FormatCbddlp cbddlpPackager{};
     size_t size;

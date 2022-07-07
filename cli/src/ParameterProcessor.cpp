@@ -69,9 +69,13 @@ void ParameterProcessor::reset()
 
 bool ParameterProcessor::validateRecord()
 {
-    if (index < 0)
-        return true;
-    return (x_set && y_set && hight_set);
+    bool state = (x_set && y_set && hight_set);
+    if (state) {
+        if (rotations.count(index) == 0) {
+            rotations[index] = 0;
+        }
+    }
+    return state;
 }
 
 int ParameterProcessor::processInput(const char *value)
@@ -96,7 +100,7 @@ int ParameterProcessor::processInput(const char *value)
         return errors::FILE_NOT_FOUND;
     }
     file.close();
-    inputFileNames[index] = std::string{value};
+    inputFileNames.push_back(std::string{value});
 
     reset();
     index++;

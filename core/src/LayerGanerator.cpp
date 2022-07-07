@@ -10,9 +10,10 @@ LayerGanerator::LayerGanerator(PrinterConfig &printerConfig, ResinConfig &resinC
     : printerConfig(printerConfig),
       resinConfig(resinConfig),
       stempHight(stempHight),
-      px_mm(printerConfig.getResolutionX() / printerConfig.getBedWidth()),
-      channelWidth(3 * px_mm),
-      padding(4 * px_mm),
+      px_mmX(printerConfig.getResolutionX() / printerConfig.getBedWidth()),
+      px_mmY(printerConfig.getResolutionY() / printerConfig.getBedLength()),
+      channelWidth(3),
+      padding(4.5),
       centerLayer(2 / resinConfig.getLayerHeight()),
       channelHeight(3 / resinConfig.getLayerHeight()),
       baseHeight(4 / resinConfig.getLayerHeight())
@@ -31,28 +32,33 @@ LayerGanerator::~LayerGanerator()
     free(imageData);
 }
 
-void LayerGanerator::add(int x, int y, Image &image)
+void LayerGanerator::add(float x, float y, Image &image)
 {
-    generateBaseLayers(x, y, image.getWidth(), image.getHeight());
-    generateImageLayers(x, y, image);
+    x *= px_mmX;
+    y *= px_mmY;
+    generateBaseLayers((int)x, (int)y, image.getWidth(), image.getHeight());
+    generateImageLayers((int)x, (int)y, image);
 }
 
-void stripeImage(Image &image, int width, int padding)
+void LayerGanerator::stripeImage(Image &image, float inWidth, float inPadding)
 {
-    int numX = image.getWidth() / padding - 1;
-    int numY = image.getHeight() / padding - 1;
-    int startX = (image.getWidth() - (numX * padding)) / 2;
-    int startY = (image.getHeight() - (numY * padding)) / 2;
-
+    int paddingX = inPadding * px_mmX;
+    int paddingY = inPadding * px_mmY;
+    int widthX = inWidth * px_mmX;
+    int widthY = inWidth * px_mmY;
+    int numX = image.getWidth() / paddingX - 1;
+    int numY = image.getHeight() / paddingY - 1;
+    int startX = (image.getWidth() - (numX * paddingX)) / 2;
+    int startY = (image.getHeight() - (numY * paddingY)) / 2;
     for (int x = 0; x <= numX; x++)
     {
-        int posX = startX + padding * x - (width / 2);
-        image.fill(posX, 0, width, image.getHeight(), 0);
+        int posX = startX + paddingX * x - (widthX / 2);
+        image.fill(posX, 0, widthX, image.getHeight(), 0);
     }
-    for (int y = 0; y <= numX; y++)
+    for (int y = 0; y <= numY; y++)
     {
-        int posY = startY + padding * y - (width / 2);
-        image.fill(0, posY, image.getWidth(), width, 0);
+        int posY = startY + paddingY * y - (widthY / 2);
+        image.fill(0, posY, image.getWidth(), widthY , 0);
     }
 }
 
@@ -64,9 +70,9 @@ void LayerGanerator::generateBaseLayers(int x, int y, int width, int height)
 
     for (int layer = 1; layer < channelHeight / 2; layer++)
     {
-        // int stripeWidth = channelWidth; // Regtangle
-        // int stripeWidth = channelWidth - ((float)channelWidth * layer / (channelHeight / 2-1)); // Regtangle 45 deg
-        int stripeWidth = channelWidth * cos(asin((float)layer / (channelHeight / 2))); // circle
+        // float stripeWidth = channelWidth; // Regtangle
+        // float stripeWidth = channelWidth - ((float)channelWidth * layer / (channelHeight / 2-1)); // Regtangle 45 deg
+        float stripeWidth = channelWidth * cos(asin((float)layer / (channelHeight / 2))); // circle
         stripedImage.fill(0, 0, width, height, 255);
         stripeImage(stripedImage, stripeWidth, padding);
         imageData[centerLayer + layer].copy(x, y, &stripedImage);
@@ -91,10 +97,11 @@ void LayerGanerator::generateImageLayers(int x, int y, Image &src)
     for (int layerOffset = 0; layerOffset < layerCount - baseHeight; layerOffset++)
     {
         int layer = layerCount - layerOffset - 1;
-        int padding = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mm);
+        int paddingX = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmX);
+        int paddingY = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmX);
         Image image(src);
-        if (padding != 0)
-            image.padding(padding);
+        if (paddingX != 0 && paddingY != 0 )
+            image.padding(paddingX);
         imageData[layer].copy(x, y, &image);   
     }
 }
