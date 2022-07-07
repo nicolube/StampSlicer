@@ -6,7 +6,6 @@
 #include <formats/config/PrinterConfig.hpp>
 #include <lunasvg.h>
 
-
 namespace core
 {
     class SvgConverter
@@ -21,6 +20,8 @@ namespace core
     private:
         formats::config::PrinterConfig &printerConfig;
         std::unique_ptr<lunasvg::Document> svgImage;
+        int width;
+        int height;
     };
 
 }

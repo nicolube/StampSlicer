@@ -15,7 +15,8 @@ TEST (SvgConverter, Convert) {
     SvgConverter converter{printerConfig, "test.svg"};
     converter.setHight(60);
     Image img = converter.toImage();
-
+    ASSERT_EQ(img.getWidth(), (int)(60 * printerConfig.getResolutionX() / printerConfig.getBedWidth()));
+    ASSERT_EQ(img.getHeight(), (int)(60 * printerConfig.getResolutionY() / printerConfig.getBedLength()));
 }
 
 int main(int argc, char **argv)
