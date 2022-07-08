@@ -113,10 +113,13 @@ const unsigned char *LayerGanerator::package(formats::Packager &packager, size_t
 
 void LayerGanerator::save(formats::Packager &packager, const char *name) {
     size_t size;
+    std::cout << "Packange files..." << std::endl;
     const unsigned char *data =  packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
     std::stringstream ss;
     ss << name << packager.getFileExtension();
-    std::ofstream outFile(ss.str());
+    std::string fileName = ss.str();
+    std::cout << "Save file to: " << fileName << std::endl;
+    std::ofstream outFile(fileName);
     outFile.write((char *)data, size);
     outFile.flush();
     outFile.close();

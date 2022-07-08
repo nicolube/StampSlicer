@@ -41,10 +41,11 @@ int main(int argc, const char *argv[])
         std::stringstream ss;
         for (size_t i = 0; i < inputFileNames.size(); i++)
         {
-            std::string str = fs::path(inputFileNames[i]).filename().string();
+            std::string str = fs::path(inputFileNames[i]).filename().u8string();
             ss << str.substr(0, str.size() - 4) << '_';
         }
         outputFileName = ss.str();
+        outputFileName.pop_back();
     }
 
     if (inputFileNames.size() == 0) return 0;
@@ -57,12 +58,12 @@ int main(int argc, const char *argv[])
 
     for (size_t i = 0; i < inputFileNames.size(); i++)
     {
+        std::cout << "Render image: " << inputFileNames[i] << std::endl;
         core::SvgConverter svgConverter{printerConfig, inputFileNames[i]};
         svgConverter.setHight(height[i]);
         Image baseImage = svgConverter.toImage();
         layerGenerator.add(xOffsets[i], yOffsets[i], baseImage);
     }
     layerGenerator.save(packager, outputFileName.c_str());
-
     return 0;
 }

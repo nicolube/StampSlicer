@@ -9,7 +9,7 @@ inline unsigned char *rleEncode(formats::Image *src, unsigned int &length, unsig
     unsigned int sameCount = 0;
     length = 0;
     const unsigned int imageLength = src->getWidth() * src->getHeight();
-    bufType buf[imageLength];
+    bufType *buf = new bufType[imageLength];
     for (unsigned int pos = 0; pos < imageLength; pos++)
     {
         unsigned char value = src->getBitmap()[pos];
@@ -35,8 +35,9 @@ inline unsigned char *rleEncode(formats::Image *src, unsigned int &length, unsig
     if (sameCount > 0)
         (*genData)(buf, lastValue, sameCount, length);
 
-    unsigned char *result = new unsigned char[length];
+    unsigned char *result = new unsigned char[length * sizeof(bufType)];
     memcpy(result, buf, length);
+    delete[] buf;
     return result;
 }
 #endif

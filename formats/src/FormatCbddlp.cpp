@@ -39,7 +39,6 @@ unsigned char *FormatCbddlp::encodePreview(Image *src, unsigned int &length)
 unsigned char *FormatCbddlp::encode(Image *src, unsigned int &length)
 {
     return rleEncode<unsigned char>(src, length, 0x7F, generateLayer);
-    ;
 }
 
 void FormatCbddlp::decode(unsigned char *src, unsigned int length, Image *dest)
@@ -103,6 +102,8 @@ const unsigned char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinCo
     unsigned char *encodedImages[layers];
     unsigned int encodedSizeTotal = 0;
     layer_header_t layerHeaderTable[layers];
+
+
     for (int layer = 0; layer < layers; layer++)
     {
         encodedImages[layer] = encode(&(imageData[layer]), layerHeaderTable[layer].data_len);
