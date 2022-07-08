@@ -98,22 +98,22 @@ void LayerGanerator::generateImageLayers(int x, int y, Image &src)
     {
         int layer = layerCount - layerOffset - 1;
         int paddingX = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmX);
-        int paddingY = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmX);
+        int paddingY = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmY);
         Image image(src);
-        if (paddingX != 0 && paddingY != 0 )
+        if (paddingX != 0 || paddingY != 0 )
             image.padding(paddingX);
         imageData[layer].copy(x, y, &image);   
     }
 }
 
 
-const u_char *LayerGanerator::package(formats::Packager &packager, size_t &size) {
+const unsigned char *LayerGanerator::package(formats::Packager &packager, size_t &size) {
     return packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
 }
 
 void LayerGanerator::save(formats::Packager &packager, const char *name) {
     size_t size;
-    const u_char *data =  packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
+    const unsigned char *data =  packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
     std::stringstream ss;
     ss << name << packager.getFileExtension();
     std::ofstream outFile(ss.str());

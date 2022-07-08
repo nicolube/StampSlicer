@@ -10,12 +10,12 @@ FormatCbddlp::FormatCbddlp()
     fileExtension = ".cbddlp";
 }
 
-void FormatCbddlp::load(u_char *data, size_t length)
+void FormatCbddlp::load(unsigned char *data, size_t length)
 {
     std::memcpy(&header, data, sizeof(cbddlp_file_head_t));
 }
 
-inline void generateRGB565(u_short *data, u_char color, u_int &length, u_int &pos)
+inline void generateRGB565(unsigned short *data, unsigned char color, unsigned int &length, unsigned int &pos)
 {
     color >>= 3;
     if (length == 1)
@@ -26,42 +26,42 @@ inline void generateRGB565(u_short *data, u_char color, u_int &length, u_int &po
     data[pos++] = 0x300 | length;
 }
 
-inline void generateLayer(u_char *data, u_char color, u_int &length, u_int &pos)
+inline void generateLayer(unsigned char *data, unsigned char color, unsigned int &length, unsigned int &pos)
 {
     data[pos++] = (color > 127) << 7 | length;
 }
 
-u_char *FormatCbddlp::encodePreview(Image *src, u_int &length)
+unsigned char *FormatCbddlp::encodePreview(Image *src, unsigned int &length)
 {
-    return rleEncode<u_short>(src, length, 0xFFF, generateRGB565);
+    return rleEncode<unsigned short>(src, length, 0xFFF, generateRGB565);
 }
 
-u_char *FormatCbddlp::encode(Image *src, u_int &length)
+unsigned char *FormatCbddlp::encode(Image *src, unsigned int &length)
 {
-    return rleEncode<u_char>(src, length, 0x7F, generateLayer);
+    return rleEncode<unsigned char>(src, length, 0x7F, generateLayer);
     ;
 }
 
-void FormatCbddlp::decode(u_char *src, u_int length, Image *dest)
+void FormatCbddlp::decode(unsigned char *src, unsigned int length, Image *dest)
 {
-    u_int imgPos = 0;
-    for (u_int pos = 0; pos < length; pos++)
+    unsigned int imgPos = 0;
+    for (unsigned int pos = 0; pos < length; pos++)
     {
-        u_char value = (src[pos] & 0x80) == 0x80 ? 0xFF : 0x0;
-        u_char length = src[pos] & ~0x80;
-        for (u_char i = 0; i < length; i++)
+        unsigned char value = (src[pos] & 0x80) == 0x80 ? 0xFF : 0x0;
+        unsigned char length = src[pos] & ~0x80;
+        for (unsigned char i = 0; i < length; i++)
         {
             dest->getBitmap()[imgPos++] = value;
         }
     }
 }
 
-const u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size)
+const unsigned char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size)
 {
     cbddlp_file_head_t header;
     header.bed_x_mm = printerConfig.getBedWidth();
     header.bed_y_mm = printerConfig.getBedLength();
-    header.bed_y_mm = printerConfig.getBedHeight();
+    header.bed_z_mm = printerConfig.getBedHeight();
     header.overall_height_mm = layers * resinConfig.getLayerHeight();
     header.layer_height_mm = resinConfig.getLayerHeight();
     header.exposure_s = resinConfig.getLightOnTime();
@@ -80,26 +80,28 @@ const u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &r
     ext1.lift_dist_mm = resinConfig.getLiftDistance();
     ext1.lift_speed_mmpm = resinConfig.getLiftSpeed();
     ext1.retract_speed_mmpm = resinConfig.getRetractSpeed();
+    ext1.resin_cost = resinConfig.getResinCost();
+    ext1.resin_cost = resinConfig.getResinMass();
     ext1.bot_light_off_time_s = resinConfig.getBottomLightOffTime();
     ext1.light_off_time_s = resinConfig.getLightOffTime();
     ext1.bot_layer_count = resinConfig.getBottomLayerCount();
 
     ext2_config_t ext2;
 
-    u_int smallImageSize;
+    unsigned int smallImageSize;
     Image smallImage{imageData[layers - 1]};
     smallImage.scale(200, 125);
-    u_char *smallImageData = encodePreview(&smallImage, smallImageSize);
+    unsigned char *smallImageData = encodePreview(&smallImage, smallImageSize);
     image_header_t smallImageHeader;
 
     Image largeImage{imageData[layers - 1]};
     largeImage.scale(400, 300);
-    u_int largeImageSize;
-    u_char *largeImageData = encodePreview(&largeImage, largeImageSize);
+    unsigned int largeImageSize;
+    unsigned char *largeImageData = encodePreview(&largeImage, largeImageSize);
     image_header_t largeImageHeader;
 
-    u_char *encodedImages[layers];
-    u_int encodedSizeTotal = 0;
+    unsigned char *encodedImages[layers];
+    unsigned int encodedSizeTotal = 0;
     layer_header_t layerHeaderTable[layers];
     for (int layer = 0; layer < layers; layer++)
     {
@@ -141,8 +143,8 @@ const u_char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinConfig &r
             largeImageSize +
             encodedSizeTotal;
 
-    // // package
-    u_char *buf = new u_char[*size];
+    // package
+    unsigned char *buf = new unsigned char[*size];
     memcpy(buf, &header, sizeof(cbddlp_file_head_t));
     memcpy(buf + ext1_pos, &ext1, sizeof(ext_config_t));
     memcpy(buf + ext2_pos, &ext2, sizeof(ext2_config_t));

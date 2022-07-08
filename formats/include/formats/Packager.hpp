@@ -12,7 +12,7 @@ namespace formats
     public:
         Packager() = default;
         virtual ~Packager() = default;
-        virtual const u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size) = 0;
+        virtual const unsigned char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size) = 0;
         const std::string getFileExtension();
 
     protected:

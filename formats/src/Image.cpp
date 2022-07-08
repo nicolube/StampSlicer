@@ -4,19 +4,19 @@ using namespace formats;
 
 Image::Image(const Image &src) : height(src.height), width(src.width)
 {
-    data = new u_char[height * width];
+    data = new unsigned char[height * width];
     memcpy(data, src.data, width * height);
 }
 
 Image::Image(int width, int height) : height(height), width(width)
 {
-    data = new u_char[height * width];
+    data = new unsigned char[height * width];
     memset(data, 0, height * width);
 }
 
-Image::Image(int width, int height, u_char color) : height(height), width(width)
+Image::Image(int width, int height, unsigned char color) : height(height), width(width)
 {
-    data = new u_char[height * width];
+    data = new unsigned char[height * width];
     memset(data, color, height * width);
 }
 
@@ -25,7 +25,7 @@ Image::~Image()
     delete[] data;
 }
 
-u_char *Image::getBitmap()
+unsigned char *Image::getBitmap()
 {
     return data;
 }
@@ -33,7 +33,7 @@ u_char *Image::getBitmap()
 void Image::scale(int newWidth, int newHeigth)
 {
     const size_t size = newWidth * newHeigth;
-    u_char *newData = new u_char[size];
+    unsigned char *newData = new unsigned char[size];
     float convX = width / newWidth;
     float convY = height / newHeigth;
     for (size_t x = 0; x < newWidth; x++)
@@ -51,10 +51,10 @@ void Image::scale(int newWidth, int newHeigth)
 
 void Image::copy(int x, int y, Image *input)
 {
-    int length = input->getHeight();
-    for (int cHeight = 0; cHeight < input->getWidth(); cHeight++)
+    int length = input->width;
+    for (int cHeight = 0; cHeight < input->height; cHeight++)
     {
-        memcpy(data + (y + cHeight) * width + x, input->data + cHeight * input->getWidth(), length);
+        memcpy(data + (y + cHeight) * width + x, input->data + cHeight * input->width, length);
     }
 }
 
@@ -66,12 +66,12 @@ void Image::fill(int x, int y, int _width, int _height, char value)
     }
 }
 
-void Image::setPixel(int x, int y, u_char value)
+void Image::setPixel(int x, int y, unsigned char value)
 {
     data[y * width + x] = value;
 }
 
-u_char Image::getPixel(int x, int y)
+unsigned char Image::getPixel(int x, int y)
 {
     return data[y * width + x];
 }
@@ -83,7 +83,7 @@ bitmap_image Image::toBitmapImage()
     {
         for (int y = 0; y < height; y++)
         {
-            u_char color = getPixel(x, y);
+            unsigned char color = getPixel(x, y);
             bmpImage.set_pixel(x, y, color, color, color);
         }
     }
@@ -103,8 +103,8 @@ int Image::getHeight()
 void Image::padding(int size)
 {
     const int length = width * height;
-    u_char *src = data;
-    u_char *dest = new u_char[length];
+    unsigned char *src = data;
+    unsigned char *dest = new unsigned char[length];
     memcpy(dest, src, length);
 
     for (int i = 0; i < abs(size); i++)
@@ -127,31 +127,35 @@ void Image::padding(int size)
     delete[] dest;
 }
 
-void Image::pad(u_char *src, u_char *dest, int length)
+void Image::pad(unsigned char *src, unsigned char *dest, int length)
 {
     for (int pos = 0; pos < length; pos++)
     {
         if (dest[pos] != 0)
             continue;
+        int startLine  = pos / width;
+        int endLine  = pos / width +  width;
         if ((pos >= width && src[pos - width] != 0) ||
-            (pos >= 1 && src[pos - 1] != 0) ||
             (pos + width < length && src[pos + width] != 0) ||
-            (pos + 1 < length && src[pos + 1] != 0))
+            (pos - 1 > startLine && src[pos - 1] != 0) ||
+            (pos + 1 < endLine && src[pos + 1] != 0))
         {
             dest[pos] = 255;
         }
     }
 }
-void Image::depad(u_char *src, u_char *dest, int length)
+void Image::depad(unsigned char *src, unsigned char *dest, int length)
 {
     for (int pos = 0; pos < length; pos++)
     {
         if (dest[pos] == 0)
             continue;
+        int startLine  = pos / width;
+        int endLine  = pos / width +  width;
         if ((pos >= width && src[pos - width] == 0) ||
             (pos >= 1 && src[pos - 1] == 0) ||
-            (pos + width < length && src[pos + width] == 0) ||
-            (pos + 1 < length && src[pos + 1] == 0))
+            (pos - 1 > startLine < length && src[pos + width] == 0) ||
+            (pos + 1 < endLine  && src[pos + 1] == 0))
         {
             dest[pos] = 0;
         }

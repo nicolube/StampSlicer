@@ -41,7 +41,7 @@ int main(int argc, const char *argv[])
         std::stringstream ss;
         for (size_t i = 0; i < inputFileNames.size(); i++)
         {
-            std::string str = fs::path(inputFileNames[i]).filename();
+            std::string str = fs::path(inputFileNames[i]).filename().string();
             ss << str.substr(0, str.size() - 4) << '_';
         }
         outputFileName = ss.str();
@@ -50,7 +50,7 @@ int main(int argc, const char *argv[])
     if (inputFileNames.size() == 0) return 0;
 
     config::PrinterConfig printerConfig{1440, 2560, 68.04, 120.96, 150};
-    config::ResinConfig resinConfig{150, 100, 10, 150, 150, 1.0, 1.0, 0, 90, 0, 16, 5, 0.05};
+    config::ResinConfig resinConfig{10 , 10, 15, 50, 150, 1.0, 1.0, 0, 90, 0, 16, 5, 0.05};
 
     formats::cbddlp::FormatCbddlp packager{};
     core::LayerGanerator layerGenerator{printerConfig, resinConfig, 2};

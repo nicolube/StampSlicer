@@ -1,7 +1,6 @@
 #ifndef INCLUDE_FORMATS_FORMATCBDDLP_HPP
 #define INCLUDE_FORMATS_FORMATCBDDLP_HPP
 
-#include <stddef.h>
 #include <formats/Image.hpp>
 #include <formats/Packager.hpp>
 #include <formats/config/PrinterConfig.hpp>
@@ -64,7 +63,7 @@ namespace formats::cbddlp
 	struct ext2_config_t
 	{
 		int zeros[7]{0, 0, 0, 0, 0, 0, 0};
-		u_int machine_type_offset = 0;
+		unsigned int machine_type_offset = 0;
 		int machine_type_len = 0;
 		float encryption_mode = 0;
 		float mysterious_id = 0;
@@ -78,11 +77,11 @@ namespace formats::cbddlp
 
 	struct image_header_t
 	{
-		u_int size_x;
-		u_int size_y;
-		u_int data_offset;
-		u_int data_len;
-		u_int zeros[4]{0, 0, 0, 0};
+		unsigned int size_x;
+		unsigned int size_y;
+		unsigned int data_offset;
+		unsigned int data_len;
+		unsigned int zeros[4]{0, 0, 0, 0};
 	};
 
 	struct layer_header_t
@@ -90,9 +89,9 @@ namespace formats::cbddlp
 		float z_mm;
 		float exposure_s;
 		float light_off_time_s;
-		u_int data_offset;
-		u_int data_len;
-		u_int zeros[4]{0, 0, 0, 0};
+		unsigned int data_offset;
+		unsigned int data_len;
+		unsigned int zeros[4]{0, 0, 0, 0};
 	};
 
 	class FormatCbddlp : public formats::Packager
@@ -100,11 +99,11 @@ namespace formats::cbddlp
 
 	public:
 		FormatCbddlp();
-		void load(u_char *data, size_t length);
-		static u_char *encodePreview(Image *src, u_int &length);
-		static u_char *encode(Image *src, u_int &length);
-		static void decode(u_char *src, u_int length, Image *dest);
-		const u_char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size) override final;
+		void load(unsigned char *data, size_t length);
+		static unsigned char *encodePreview(Image *src, unsigned int &length);
+		static unsigned char *encode(Image *src, unsigned int &length);
+		static void decode(unsigned char *src, unsigned int length, Image *dest);
+		const unsigned char *package(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, Image *imageData, const int layers, size_t *size) override final;
 
 		// private:
 		cbddlp_file_head_t header;

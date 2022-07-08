@@ -9,5 +9,8 @@ rebuild:
 test: build
 	env CTEST_OUTPUT_ON_FAILURE=1 $(MAKE) test -C build
 
+install:
+	sudo cp build/cli/StampSlicerCliTool /usr/bin/stamp_slicer
+
 clean:
 	rm -r build

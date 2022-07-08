@@ -20,7 +20,7 @@ using formats::Image;
 class FormatCbddlpTest : public ::testing::Test
 {
 public:
-    u_char *fileData;
+    unsigned char *fileData;
     size_t size;
 
 protected:
@@ -37,7 +37,7 @@ protected:
         file.seekg(0, ios::beg);
         streampos start = file.tellg();
         size = end - start;
-        fileData = new u_char[size];
+        fileData = new unsigned char[size];
         file.read((char *)fileData, size);
         file.close();
     }
@@ -79,7 +79,7 @@ TEST_F(FormatCbddlpTest, Content)
     int layer = 1;
     layer_header_t layderHeaders[header.layer_table_count];
     memcpy(layderHeaders, fileData + header.layer_table_offset, header.layer_table_count * sizeof(layer_header_t));
-    u_char *imgData = &(fileData[layderHeaders[layer].data_offset]);
+    unsigned char *imgData = &(fileData[layderHeaders[layer].data_offset]);
 
     Image image{header.resolution_x, header.resolution_y};
     FormatCbddlp::decode(imgData, layderHeaders[layer].data_len, &image);
@@ -98,7 +98,7 @@ TEST_F(FormatCbddlpTest, EncodeDecode)
     }
     image1.fill(0, 0, 2, 2, 255);
 
-    u_int encodeLength;
+    unsigned int encodeLength;
     unsigned char *imageBuffer = FormatCbddlp::encode(&image1, encodeLength);
 
     formats::Image image2{200, 300};
@@ -134,7 +134,7 @@ TEST_F(FormatCbddlpTest, PackegeTest)
     FormatCbddlp formatCbddlp{};
 
     size_t size;
-    const u_char *data = formatCbddlp.package(printerConfig, resinConfig, parts, 20, &size);
+    const unsigned char *data = formatCbddlp.package(printerConfig, resinConfig, parts, 20, &size);
 
     // std::ofstream outFile("test.cbddlp");
     // outFile.write((char *)data, size);

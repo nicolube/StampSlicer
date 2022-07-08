@@ -4,15 +4,15 @@
 #include <formats/Image.hpp>
 
 template<typename bufType>
-inline u_char *rleEncode(formats::Image *src, u_int &length, u_int limit, void (*genData)(bufType *data, u_char color, u_int &length, u_int &pos)) {
-    u_char lastValue = 0;
-    u_int sameCount = 0;
+inline unsigned char *rleEncode(formats::Image *src, unsigned int &length, unsigned int limit, void (*genData)(bufType *data, unsigned char color, unsigned int &length, unsigned int &pos)) {
+    unsigned char lastValue = 0;
+    unsigned int sameCount = 0;
     length = 0;
-    const u_int imageLength = src->getWidth() * src->getHeight();
+    const unsigned int imageLength = src->getWidth() * src->getHeight();
     bufType buf[imageLength];
-    for (u_int pos = 0; pos < imageLength; pos++)
+    for (unsigned int pos = 0; pos < imageLength; pos++)
     {
-        u_char value = src->getBitmap()[pos];
+        unsigned char value = src->getBitmap()[pos];
         if (lastValue == value)
         {
             sameCount++;
@@ -35,7 +35,7 @@ inline u_char *rleEncode(formats::Image *src, u_int &length, u_int limit, void (
     if (sameCount > 0)
         (*genData)(buf, lastValue, sameCount, length);
 
-    u_char *result = new u_char[length];
+    unsigned char *result = new unsigned char[length];
     memcpy(result, buf, length);
     return result;
 }

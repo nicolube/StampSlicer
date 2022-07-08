@@ -33,7 +33,7 @@ namespace core
         LayerGanerator(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, float stempHight);
         ~LayerGanerator();
         void add(float x, float y, formats::Image &image);
-        const u_char *package(formats::Packager &packager, size_t &size);
+        const unsigned char *package(formats::Packager &packager, size_t &size);
         void save(formats::Packager &packager, const char *name);
     };
 }
