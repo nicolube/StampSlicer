@@ -34,8 +34,8 @@ inline unsigned char *rleEncode(formats::Image *src, unsigned int &length, unsig
     }
     if (sameCount > 0)
         (*genData)(buf, lastValue, sameCount, length);
-
-    unsigned char *result = new unsigned char[length * sizeof(bufType)];
+    length *= sizeof(bufType);
+    unsigned char *result = new unsigned char[length ];
     memcpy(result, buf, length);
     delete[] buf;
     return result;
