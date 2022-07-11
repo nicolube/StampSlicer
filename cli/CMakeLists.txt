@@ -11,8 +11,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC "include")
 target_link_libraries(${PROJECT_NAME} PRIVATE
     StampSlicer_core
     StampSlicer_formats
-#    stdc++fs
-#    -static-libgcc
-#    -static-libstdc++
+    stdc++fs
+    -static-libgcc
+    -static-libstdc++
 )
 

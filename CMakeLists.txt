@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CXX_EXTENSIONS OFF)
 
-# include(windows.cmake)
+if (${WIN32})
+    include(windows.cmake)
+endif()
 
 project(StampSlicer)
 

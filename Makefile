@@ -2,6 +2,10 @@ all: clean build test
 
 build: rebuild
 
+build-win32:
+	cmake -DWIN32=1 -B build .
+	$(MAKE) all -C build -sj
+
 rebuild:
 	cmake -B build .
 	$(MAKE) all -C build -sj
