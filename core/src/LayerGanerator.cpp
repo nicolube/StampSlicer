@@ -4,7 +4,6 @@
 using namespace core;
 using namespace formats::config;
 using formats::Image;
-using formats::Image;
 
 LayerGanerator::LayerGanerator(PrinterConfig &printerConfig, ResinConfig &resinConfig, float stempHight)
     : printerConfig(printerConfig),
@@ -15,7 +14,7 @@ LayerGanerator::LayerGanerator(PrinterConfig &printerConfig, ResinConfig &resinC
       channelWidth(3),
       padding(4.5),
       centerLayer(2 / resinConfig.getLayerHeight()),
-      channelHeight(3 / resinConfig.getLayerHeight()),
+      channelHeight(2.5 / resinConfig.getLayerHeight()),
       baseHeight(4 / resinConfig.getLayerHeight())
 {
     layerCount = (4 + stempHight) / resinConfig.getLayerHeight();
@@ -46,8 +45,8 @@ void LayerGanerator::stripeImage(Image &image, float inWidth, float inPadding)
     int paddingY = inPadding * px_mmY;
     int widthX = inWidth * px_mmX;
     int widthY = inWidth * px_mmY;
-    int numX = image.getWidth() / paddingX - 1;
-    int numY = image.getHeight() / paddingY - 1;
+    int numX = image.getWidth() / paddingX - 2;
+    int numY = image.getHeight() / paddingY - 2;
     int startX = (image.getWidth() - (numX * paddingX)) / 2;
     int startY = (image.getHeight() - (numY * paddingY)) / 2;
     for (int x = 0; x <= numX; x++)
@@ -58,7 +57,33 @@ void LayerGanerator::stripeImage(Image &image, float inWidth, float inPadding)
     for (int y = 0; y <= numY; y++)
     {
         int posY = startY + paddingY * y - (widthY / 2);
-        image.fill(0, posY, image.getWidth(), widthY , 0);
+        image.fill(0, posY, image.getWidth(), widthY, 0);
+    }
+}
+
+void LayerGanerator::drainImage(Image &image, float inWidth, float inPadding)
+{
+    int paddingX = inPadding * px_mmX;
+    int paddingY = inPadding * px_mmY;
+    int widthX = inWidth * px_mmX;
+    int widthY = inWidth * px_mmY;
+    int numX = image.getWidth() / paddingX - 2;
+    int numY = image.getHeight() / paddingY - 2;
+    int startX = (image.getWidth() - (numX * paddingX)) / 2;
+    int startY = (image.getHeight() - (numY * paddingY)) / 2;
+    for (int x = 0; x <= numX / 2; x += 2)
+    {
+        int posXa = startX + paddingX * x - (widthX / 2);
+        int posXb = startX + paddingX * (numX - x) - (widthX / 2);
+        for (int y = 0; y <= numY / 2; y += 2)
+        {
+            int posYa = startY + paddingY * y - (widthY / 2);
+            int posYb = startY + paddingY * (numY-y) - (widthY / 2);
+            image.fill(posXa, posYa, widthX, widthY, 0);
+            image.fill(posXb, posYb, widthX, widthY, 0);
+            image.fill(posXa, posYb, widthX, widthY, 0);
+            image.fill(posXb, posYa, widthX, widthY, 0);
+        }
     }
 }
 
@@ -76,17 +101,24 @@ void LayerGanerator::generateBaseLayers(int x, int y, int width, int height)
         stripedImage.fill(0, 0, width, height, 255);
         stripeImage(stripedImage, stripeWidth, padding);
         imageData[centerLayer + layer].copy(x, y, &stripedImage);
+        drainImage(stripedImage, channelWidth, padding);
         imageData[centerLayer - layer].copy(x, y, &stripedImage);
     }
+
+    stripedImage.fill(0, 0, width, height, 255);
+    drainImage(stripedImage, channelWidth, padding);
 
     for (int layer = 0; layer < baseHeight; layer++)
     {
         int channelStart = centerLayer - channelHeight / 2;
 
-        if (layer > channelStart && layer < channelStart + channelHeight)
+        if (layer > channelStart && layer < channelStart + channelHeight - 1)
             continue;
 
         imageData[layer].fill(x, y, width, height, 255);
+        if (layer < centerLayer) {
+            imageData[layer].copy(x, y, &stripedImage);
+        }
     }
 }
 
@@ -100,21 +132,22 @@ void LayerGanerator::generateImageLayers(int x, int y, Image &src)
         int paddingX = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmX);
         int paddingY = (tan(deg_15) * layerOffset * resinConfig.getLayerHeight() * px_mmY);
         Image image(src);
-        if (paddingX != 0 || paddingY != 0 )
+        if (paddingX != 0 || paddingY != 0)
             image.padding(paddingX);
-        imageData[layer].copy(x, y, &image);   
+        imageData[layer].copy(x, y, &image);
     }
 }
 
-
-const unsigned char *LayerGanerator::package(formats::Packager &packager, size_t &size) {
+const unsigned char *LayerGanerator::package(formats::Packager &packager, size_t &size)
+{
     return packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
 }
 
-void LayerGanerator::save(formats::Packager &packager, const char *name) {
+void LayerGanerator::save(formats::Packager &packager, const char *name)
+{
     size_t size;
     std::cout << "Packange files..." << std::endl;
-    const unsigned char *data =  packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
+    const unsigned char *data = packager.package(printerConfig, resinConfig, imageData, layerCount, &size);
     std::stringstream ss;
     ss << name << packager.getFileExtension();
     std::string fileName = ss.str();
@@ -123,5 +156,4 @@ void LayerGanerator::save(formats::Packager &packager, const char *name) {
     outFile.write((char *)data, size);
     outFile.flush();
     outFile.close();
-
 }

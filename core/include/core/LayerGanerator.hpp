@@ -28,6 +28,7 @@ namespace core
         void generateBaseLayers(int x, int y, int width, int height);
         void generateImageLayers(int x, int y, formats::Image &image);
         void stripeImage(formats::Image &image, float width, float padding);
+        void drainImage(formats::Image &image, float inWidth, float inPadding);
 
     public:
         LayerGanerator(formats::config::PrinterConfig &printerConfig, formats::config::ResinConfig &resinConfig, float stempHight);
