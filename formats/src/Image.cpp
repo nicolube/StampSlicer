@@ -134,7 +134,7 @@ void Image::pad(unsigned char *src, unsigned char *dest, int length)
         if (dest[pos] != 0)
             continue;
         int startLine  = pos / width;
-        int endLine  = pos / width +  width;
+        int endLine  = endLine  +  width;
         if ((pos >= width && src[pos - width] != 0) ||
             (pos + width < length && src[pos + width] != 0) ||
             (pos - 1 > startLine && src[pos - 1] != 0) ||
@@ -153,9 +153,9 @@ void Image::depad(unsigned char *src, unsigned char *dest, int length)
         int startLine  = pos / width;
         int endLine  = pos / width +  width;
         if ((pos >= width && src[pos - width] == 0) ||
-            (pos >= 1 && src[pos - 1] == 0) ||
-            (pos - 1 > startLine < length && src[pos + width] == 0) ||
-            (pos + 1 < endLine  && src[pos + 1] == 0))
+            (pos + width < length && src[pos + width] == 0) ||
+            (pos - 1 > startLine && src[pos - 1] == 0) ||
+            (pos + 1 < endLine && src[pos + 1] == 0))
         {
             dest[pos] = 0;
         }

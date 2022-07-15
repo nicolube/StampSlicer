@@ -37,7 +37,8 @@ Image SvgConverter::toImage()
     unsigned char *imageData = image.getBitmap();
     for (size_t pos = 0; pos < bitmap.width() * bitmap.height(); pos++)
     {
-        imageData[pos] = bitmapData[pos * 4] == 0x00 ? 0xFF : 0;
+        size_t x = pos % width;
+        imageData[pos - x * 2 + width] = bitmapData[pos * 4] == 0x00 ? 0xFF : 0;
     }
     return image;
 }
