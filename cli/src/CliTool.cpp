@@ -44,6 +44,13 @@ int main(int argc, const char *argv[])
         {
             std::string str = fs::path(inputFileNames[i]).filename().u8string();
             ss << str.substr(0, str.size() - 4) << '_';
+            if (ss.str().length() > 30) {
+                    
+                outputFileName = ss.str();
+                outputFileName = outputFileName.substr(0, 30);
+                ss << outputFileName << "...";
+                break;
+            }
         }
         outputFileName = ss.str();
         outputFileName.pop_back();
