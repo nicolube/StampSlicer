@@ -65,14 +65,14 @@ namespace formats::cbddlp
 		int zeros[7]{0, 0, 0, 0, 0, 0, 0};
 		unsigned int machine_type_offset = 0;
 		int machine_type_len = 0;
-		float encryption_mode = 0;
-		float mysterious_id = 0;
-		float antialias_level = 1;
+		int encryption_mode = 0;
+		int mysterious_id = 0;
+		int antialias_level = 0;
 		int software_version = 0x01060300;
-		int unknown = 0x200;
-		float padding1;
-		float padding2;
-		float padding3;
+		int unknown = 0;
+		int padding1;
+		int padding2;
+		int padding3;
 	};
 
 	struct image_header_t

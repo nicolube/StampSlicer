@@ -58,6 +58,8 @@ TEST_F(FormatCbddlpTest, Content)
     FormatCbddlp cbddlpLoader;
     cbddlpLoader.load(fileData, size);
     cbddlp_file_head_t &header = cbddlpLoader.header;
+    ext2_config_t ext2;
+    memcpy(&ext2, fileData, sizeof(ext2_config_t));
 
     ASSERT_EQ(header.magic, 0x12fd0019) << "File type is not cbddlp";
 
@@ -76,6 +78,14 @@ TEST_F(FormatCbddlpTest, Content)
 
     ASSERT_EQ(header.layer_table_count, 1177);
 
+    cout << "level_set_count: " << header.level_set_count << endl
+     << "antialias_level: " << ext2.antialias_level << endl
+     << "encryption_mode: " << ext2.encryption_mode << endl
+     << "mysterious_id: " << ext2.mysterious_id << endl
+     << "software_version: " << ext2.software_version << endl
+     << "unknown: " << ext2.unknown << endl
+    ;
+
     int layer = 1;
     layer_header_t layderHeaders[header.layer_table_count];
     memcpy(layderHeaders, fileData + header.layer_table_offset, header.layer_table_count * sizeof(layer_header_t));
@@ -84,6 +94,7 @@ TEST_F(FormatCbddlpTest, Content)
     Image image{header.resolution_x, header.resolution_y};
     FormatCbddlp::decode(imgData, layderHeaders[layer].data_len, &image);
     // image.toBitmapImage().save_image("loadedImage.bmp");
+    // ASSERT_TRUE(false);
 }
 
 TEST_F(FormatCbddlpTest, EncodeDecode)

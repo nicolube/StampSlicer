@@ -23,7 +23,7 @@ inline void generateRGB565(unsigned short *data, unsigned char color, unsigned i
         data[pos++] = (color << 11) | (color << 6) | (0 << 5) | color;
     }
     data[pos++] = (color << 11) | (color << 6) | (1 << 5) | color;
-    data[pos++] = 0x300 | length;
+    data[pos++] = 0x3000 | length;
 }
 
 inline void generateLayer(unsigned char *data, unsigned char color, unsigned int &length, unsigned int &pos)
@@ -92,12 +92,18 @@ const unsigned char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinCo
     smallImage.scale(200, 125);
     unsigned char *smallImageData = encodePreview(&smallImage, smallImageSize);
     image_header_t smallImageHeader;
+    smallImageHeader.size_x = 200;
+    smallImageHeader.size_y = 125;
+    smallImageHeader.data_len = smallImageSize;
 
     Image largeImage{imageData[layers - 1]};
     largeImage.scale(400, 300);
     unsigned int largeImageSize;
     unsigned char *largeImageData = encodePreview(&largeImage, largeImageSize);
     image_header_t largeImageHeader;
+    largeImageHeader.size_x = 400;
+    largeImageHeader.size_y = 300;
+    largeImageHeader.data_len = largeImageSize;
 
     unsigned char *encodedImages[layers];
     unsigned int encodedSizeTotal = 0;
@@ -134,6 +140,9 @@ const unsigned char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinCo
     header.layer_table_offset = layer_header_table_pos;
     header.layer_table_count = layers;
 
+    smallImageHeader.data_offset = small_image_pos;
+    largeImageHeader.data_offset = large_image_pos;
+
     *size = sizeof(cbddlp_file_head_t) +
             sizeof(ext_config_t) +
             sizeof(ext2_config_t) +
@@ -151,8 +160,8 @@ const unsigned char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinCo
     memcpy(buf + ext2_pos, &ext2, sizeof(ext2_config_t));
     memcpy(buf + small_image_header_pos, &smallImageHeader, sizeof(image_header_t));
     memcpy(buf + large_image_header_pos, &largeImageHeader, sizeof(image_header_t));
-    memcpy(buf + small_image_pos, &smallImageData, smallImageSize);
-    memcpy(buf + small_image_pos, &largeImageData, smallImageSize);
+    memcpy(buf + small_image_pos, smallImageData, smallImageSize);
+    memcpy(buf + large_image_pos, largeImageData, largeImageSize);
     for (int layer = 0; layer < layers; layer++)
     {
         memcpy(buf + image_table_pos, encodedImages[layer], layerHeaderTable[layer].data_len);
@@ -161,5 +170,7 @@ const unsigned char *FormatCbddlp::package(PrinterConfig &printerConfig, ResinCo
         delete encodedImages[layer];
     }
     memcpy(buf + layer_header_table_pos, &layerHeaderTable, sizeof(layer_header_t) * layers);
+    delete smallImageData;
+    delete largeImageData;
     return buf;
 }
