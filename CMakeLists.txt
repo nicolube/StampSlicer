@@ -13,6 +13,7 @@ endif()
 project(StampSlicer)
 
 add_subdirectory("cli")
+add_subdirectory("inspector")
 add_subdirectory("core")
 add_subdirectory("formats")
 add_subdirectory("external/bitmap")
